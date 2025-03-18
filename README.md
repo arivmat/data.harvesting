@@ -19,15 +19,14 @@ The Book Cover Color Analysis project consists of the following components:
 ## Required packages
 
 ```{r}
-
-library(ggplot2) # data visualization
-library(tidyverse) # data manipulation, cleaning, and transformation
-library(RSelenium) # web automation and dynamic web scraping
-library(rvest) # web scraping from static web pages
-library(magick) # image processing and analysis
-library(scales) # re-scaling and formatting data
-library(shiny) # building interactive web applications
-library(writexl) #exporting processed data to Excel files for easy sharing
+library(ggplot2)       # data visualization
+library(tidyverse)     # data manipulation, cleaning, and transformation
+library(RSelenium)     # web automation and dynamic web scraping
+library(rvest)         # web scraping from static web pages
+library(magick)        # image processing and analysis
+library(scales)        # re-scaling and formatting data
+library(shiny)         # building interactive web applications
+library(writexl)       # exporting processed data to Excel files for easy sharing
 ```
 
 ## Installation and Setup
