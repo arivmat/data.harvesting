@@ -1,0 +1,1039 @@
+---
+title: "The Bestseller Palette: Data-Backed Trends in Book Cover Colors"
+author: Andrea Rivera & Maria Carda 
+date: today
+format:
+  html:
+    theme: [style.scss]
+    embed-resources: true
+    toc: true
+    toc-location: right
+    toc-title: Index
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{=html}
+<style>
+body {
+text-align: justify}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set( message=FALSE, warning=FALSE, knitr.purl.inline = TRUE )
+```
+
+#Introduction
+
+Book cover design plays a crucial role in attracting readers and
+influencing purchasing decisions. One key aspect of cover design is
+color, which conveys mood, genre conventions, and marketing strategies.
+This study aims to analyze the color palettes of book covers across
+different genres in two major online book platforms: the top-selling
+sections of *Casa del Libro* and compare them to *Goodreads Readers'
+Favorite Books 2024*.
+
+By examining whether specific color schemes are more prevalent in
+certain categories, this research seeks to uncover patterns in book
+cover aesthetics and their possible correlation with genre expectations
+and consumer preferences.
+
+To conduct this analysis, we used R for web scraping to collect cover
+images from both platforms and extract dominant color palettes using
+image processing techniques.
+
+# Libraries
+
+```{r}
+#| message: false
+
+rm(list = ls()) 
+
+packages = c("RSelenium", "rvest", "magrittr", "tidyr", "dplyr", "magick", "tidyverse", "ggplot2", 
+             "scales", "shiny", "writexl", "shinyjs", "shinythemes","shinyWidgets", "rsconnect")
+
+package.check <- lapply(packages,
+                        FUN = function(x){
+                          if (!require(x,character.only = TRUE)){
+                            install.packages(x,dependencies = TRUE)
+                            library(x, character.only = TRUE)
+                          }
+                        }
+)
+
+
+```
+
+# Casa del Libro
+
+*Casa del Libro* is a well-established Spanish bookstore chain and
+online platform that serves as a hub for book lovers. It provides a vast
+catalog of books across various genres, offering both physical and
+digital formats.
+
+## Categories & sub-categories
+
+For this research, we analyzed the best-selling books on *Casa del
+Libro* across five key genres:
+
+-   Biographies
+
+-   Science Fiction
+
+-   Mystery & Thriller
+
+-   Romance
+
+-   Young Adult Fantasy
+
+To achieve this, we first identified the paths to the broader categories
+that contain these subcategories. This step allows us to systematically
+navigate the website and efficiently scrape the relevant data.
+
+```{r}
+# Categories & Subcategories
+categories <- data.frame(
+  category = c("Biography", "Science Fiction", "Mystery & Thriller", "Romance", 
+               "Young Adult Fantasy"),
+  category_xpath = c("//a[contains(text(),'No Ficción')]",
+                     "//a[contains(text(),'Ficción')]", 
+                     "//a[contains(text(),'Ficción')]", 
+                     "//a[contains(text(),'Ficción')]", 
+                     "//a[contains(text(),'Juvenil')]"),
+  subcategory_xpath = c("//a[contains(text(),'Biografías')]",
+                        "//a[span[contains(text(),'Novela de ciencia ficción')]]", 
+                        "//a[span[contains(text(),'Novela negra')]]", 
+                        "//a[span[contains(text(),'Novela romántica y erótica')]]",
+                        "//a[span[contains(text(),'Fantasía')]]")
+)
+```
+
+## Selenium
+
+We will use Selenium to automate the scraping process, enabling us to
+navigate *Casa del Libro’s* website and efficiently extract book data.
+To achieve this, we initialize the Selenium remote driver and navigate
+to the homepage, ensuring a seamless start to the data collection
+process.
+
+```{r}
+
+remDr <- remoteDriver(port = 4449)
+remDr$open()
+
+#Go to Casa del Libro webpage
+remDr$navigate("https://www.casadellibro.com")
+
+Sys.sleep(5)
+
+```
+
+## Privacy window
+
+If the privacy window appears, the code utilizes `tryCatch()` to manage
+the rejection of the cookie consent banner on the *Casa del Libro*
+website. It attempts to locate the "Reject All" button using an XPath
+query. If the button is found, the code clicks on it to reject the
+cookies. If the button is not present, the script continues without
+interruption and outputs a message indicating that the privacy window
+was not displayed. This approach ensures that the scraping process can
+proceed seamlessly, regardless of whether the cookie consent banner is
+shown.
+
+```{r}
+
+tryCatch({
+  #Try to find the button
+  rechazar <- remDr$findElement(using = "xpath", "//button[@id='onetrust-reject-all-handler']")
+  
+  # Click if finds it
+  rechazar$clickElement()
+  message("Cookie banner found and rejected.")
+}, error = function(e) {
+  
+  # Do nothing if it does not find it
+  message("No cookie banner detected. Continuing execution.")
+})
+
+```
+
+## Scrapbook
+
+### Function
+
+The `scrap_books` function is designed to scrape book information from
+the *Casa del Libro* website. It first navigates to the pre-defined
+category and subcategory using XPath selectors. Once on the page, it
+collects details such as book titles, authors, and image URLs from the
+selected number of pages (in our case, 10 pages) using a combination of
+CSS selectors and HTML parsing.
+
+For each page, the function extracts the relevant book information,
+storing it in separate lists for titles, authors, and image URLs. After
+gathering the data, it attempts to navigate to the next page, clicking
+the pagination button. If the button is not found, it stops the process.
+
+Finally, the function compiles the extracted data into a dataframe that
+includes the category name, book titles, authors, and image URLs, which
+is then returned for further analysis or processing.
+
+```{r}
+# Scrapbook function
+scrap_books <- function(category_xpath, subcategory_xpath, category_name, num_pages = 10) {
+  
+  # Click in category
+  enlace <- remDr$findElement(using = "xpath", category_xpath)
+  enlace$clickElement()
+  
+  Sys.sleep(5)
+  
+  # Click in subcategory
+  enlace <- remDr$findElement(using = "xpath", subcategory_xpath)
+  enlace$clickElement()
+  
+  # Create empty lists to store data
+  all_titles <- c()
+  all_authors <- c()
+  all_img_urls <- c()
+
+  # Extract data in n pages
+  for (i in 1:num_pages) {
+    
+    Sys.sleep(5)  
+    
+    # Extract element of the book
+    product_elems <- remDr$findElements(using = "css selector", "div.compact-product")
+    product_html <- sapply(product_elems, function(x) x$getElementAttribute("outerHTML")[[1]])
+    parsed_products <- lapply(product_html, read_html)
+    
+    # Titles
+    titles <- sapply(parsed_products, function(x) x |> 
+                       html_node("a.product-title") |> 
+                       html_text())
+    
+    # Authors
+    authors <- sapply(parsed_products, function(x) {
+      author_node <- x |> 
+        html_node("p.truncate-text")
+      if (!is.null(author_node)) html_text(author_node) else NA
+    })
+    
+    # Images' url
+    img_urls <- sapply(parsed_products, function(x) {
+      x %>% html_node("img") |> 
+        html_attr("src")
+    })
+    
+    # Save in empty lists
+    all_titles <- c(all_titles, titles)
+    all_authors <- c(all_authors, authors)
+    all_img_urls <- c(all_img_urls, img_urls)
+    
+    # Go to next page
+    boton_pagina <- tryCatch({
+      remDr$findElement(using = "xpath", paste0("//button[normalize-space(text())='", i + 1, "']"))
+    }, error = function(e) NULL)
+    
+    if (!is.null(boton_pagina)) {
+      boton_pagina$clickElement()
+      Sys.sleep(5)  
+      remDr$refresh() 
+    } else {
+      message("Button ", i + 1, "not found.")
+      break
+    }
+  }
+  
+  # Create dataframe with the data
+  result <- data.frame(
+    category = category_name,
+    title = all_titles,
+    author = all_authors,
+    img_url = all_img_urls,
+    stringsAsFactors = FALSE
+  )
+  
+  return(result)
+}
+
+  
+```
+
+### Application
+
+Once the function is defined, we apply it to scrape the data.
+
+```{r}
+
+# Apply function in each category & subcategory
+temp_casa.libro <- list()
+
+for (i in 1:nrow(categories)) {
+  books <- scrap_books(
+    category_xpath = categories$category_xpath[i],
+    subcategory_xpath = categories$subcategory_xpath[i],
+    category_name = categories$category[i]
+  )
+  
+  temp_casa.libro[[categories$category[i]]] <- books
+}
+ 
+
+```
+
+### Save results
+
+Results are then save in a dataframe for further analysis.
+
+```{r}
+#save results
+casa.libro <- do.call(rbind, temp_casa.libro)
+
+```
+
+## End selenium
+
+Finally, we close Selenium after the scrapping process is complete. This
+ensures that the browser window opened by Selenium is properly closed,
+freeing up system resources and maintaining a clean environment for
+subsequent tasks.
+
+```{r}
+#end selenium
+remDr$close()
+
+```
+
+# Goodreads
+
+*Goodreads* is an online platform that connects readers worldwide. It
+offers features such as book reviews, ratings, and personalized
+recommendations, fostering a vibrant community for book enthusiasts.
+This includes the *Goodreads Choice Awards*, annual recognitions of the
+year's most popular books across various genres that are chosen by the
+platform's users.
+
+For this research, we scraped the results of the 2024 awards, which
+established a record-breaking number of user votes (6.2 million). The
+selected categories to match as close as possible *Casa del Libro* were
+the following:
+
+-   Mystery and Thriller books
+-   Romance books
+-   Science Fiction books
+-   History and Biography books
+-   Young adult fantasy books
+
+## Scrapping
+
+The first step is to define the URLs that need to be scrapped and create
+an empty dataframe where the data will be stored.
+
+Then, a loop is created to go through each URL, retrieving the book
+titles, cover image URLs, and category names. The extracted category
+name is cleaned by removing the prefix "Readers' Favorite" and book
+details are stored in a temporary data frame, which is then appended to
+the main *Goodreads* data frame.
+
+```{r}
+
+url <- "https://www.goodreads.com/choiceawards/readers-favorite-mystery-thriller-books-2024"
+url2 <- "https://www.goodreads.com/choiceawards/readers-favorite-romance-books-2024"
+url3 <- "https://www.goodreads.com/choiceawards/readers-favorite-ya-fantasy-books-2024"
+url4 <- "https://www.goodreads.com/choiceawards/readers-favorite-science-fiction-books-2024"
+url5 <- "https://www.goodreads.com/choiceawards/readers-favorite-history-bio-books-2024"
+urls <- c(url, url2, url3, url4, url5)
+
+goodreads <- data.frame()
+
+## Loop to extract the data
+for (url in urls) {
+    page <- read_html(url)
+    
+    # Extract book titles
+    titles <- page %>%
+        html_nodes(".pollAnswer__bookLink img") %>% 
+        html_attr("alt")
+    
+    # Extract cover images
+    covers <- page %>%
+        html_nodes(".pollAnswer__bookLink img") %>% 
+        html_attr("src")
+    
+    # Extract category from the HTML
+    category <- page %>%
+        html_element(".gcaMastheader") %>%  
+        html_text() %>%  
+        gsub("Readers' Favorite ", "", .) 
+    
+    # Create a temporary data frame
+    temp_books <- data.frame(title = titles, img_url = covers, category = category, stringsAsFactors = FALSE)
+    
+    # Append to the main data frame
+    goodreads <- bind_rows(goodreads, temp_books)
+}
+
+
+```
+
+After collecting the book information, we extracted the book title and
+author separately using regular expressions.
+
+```{r}
+# Use general expression to separate title and author
+goodreads <- goodreads |> 
+  rowwise() |> 
+  mutate(author = str_extract(title, "(?<= by ).*"),
+        title = str_extract(title, ".*(?= by )"))
+
+```
+
+# Join data
+
+Once both webpages are harvested, we combined both data into a single
+dataset and added a *webpage* variable to identify from which source is
+each book from.
+
+In addition, we recoded the category "History & Biography" from
+*Goodreads* to simply "Biography" for consistency.
+
+```{r}
+
+best_books <- bind_rows(
+  goodreads |> 
+    mutate(webpage = "Goodreads", category = recode(category, "History & Biography" = "Biography")),
+  casa.libro |> 
+    mutate(webpage = "Casa del libro")
+  )   
+
+write_xlsx(best_books, "best_books.xlsx")
+
+```
+
+# Extract colors
+
+## Function
+
+Once we have our final dataset, we defined a new function
+*extract_colors* to obtain color palettes from the book cover images
+given its URL. It first reads the image from the provided URL and
+resizes to reduce processing time. The image is then converted into
+pixel data. If the image data is in bitmap format (type of image
+representation where the image is made up of a grid of individual
+pixels, each of which has its own color value), it is normalized to a
+numeric range from 0 to 1 by dividing the pixel values by 255. The pixel
+data is then converted into a data frame containing the RGB channels
+(red, green, blue) for each pixel.
+
+then, the function applies k-means clustering to the RGB data to
+identify the most dominant colors in the image. Finally, it returns the
+RGB values of the dominant colors identified by the clustering process
+in a vector format that represents the colors.
+
+```{r}
+
+# Defined function
+extract_colors <- function(image_url, n_colors = 6) {
+  
+  # read image from url
+  img <- image_read(image_url)  |> 
+    image_resize("50x50") # Resize to reduce processing time
+  
+  # Convert the image to pixel data
+  img_data <- image_data(img)
+  
+  # Check if the structure is a bitmap
+  if (inherits(img_data, "bitmap")) {
+    # If it is a bitmap, we convert it to a numeric format
+    img_data <- as.integer(img_data) / 255
+  }
+  
+  # Convert the image to a data frame
+  # Extract the RGB channels
+  df <- data.frame(
+    red = as.vector(img_data[,,1]),    # Red
+    green = as.vector(img_data[,,2]),  # Green
+    blue = as.vector(img_data[,,3])    # Blue
+  )
+  
+  # Apply k-means to find dominant colors
+  kmeans_result <- kmeans(df, centers = n_colors, nstart = 25, iter.max = 100)
+  
+  # Convert dominant colors to RGB format
+  dominant_colors <- rgb(kmeans_result$centers[,1],
+                         kmeans_result$centers[,2],
+                         kmeans_result$centers[,3], maxColorValue = 1)
+  
+  # Return colors as a vector of colors 
+  return(dominant_colors)
+}
+
+```
+
+## Application
+
+The function is then applied to our dataset
+
+```{r}
+
+best_books$colors <- sapply(best_books$img_url, extract_colors, simplify = FALSE)
+
+```
+
+## Visualization
+
+Finally, we visualized the extracted colors by displaying a palette
+derived from the first book's cover to ensure the previous steps worked
+correctly.
+
+```{r}
+
+show_col(best_books$colors[[1]])
+
+```
+
+# Analysis
+
+## Tidy data
+
+To begin our analysis, each book's color palette (stored as a list) is
+broken down into individual rows, making each color its own observation
+allowing for more detailed color analysis.
+
+```{r}
+# Expand the dataset to individual rows for each color
+best_books_expanded <- best_books |> 
+  unnest(colors)
+
+write_xlsx(best_books_expanded, "best_books_expanded.xlsx")
+```
+
+## Hex to RGB
+
+Once the colors are unnested, we converted hex color codes into RGB
+values to extract red, green, and blue components.
+
+```{r}
+# Function to convert hex colors to RGB
+hex_to_rgb <- function(hex) {
+  rgb_matrix <- col2rgb(hex) / 255  
+  data.frame(hex = hex, R = rgb_matrix[1, ], G = rgb_matrix[2, ], B = rgb_matrix[3, ])
+}
+
+# Convert colors from hex to RGB
+color_data <- best_books_expanded |> 
+  mutate(rgb_values = map(colors, hex_to_rgb)) |> 
+  unnest(rgb_values) 
+```
+
+## Clusters
+
+Then, we applied k-means clustering to group colors into six clusters
+per book category. If a category has fewer than six colors, unique
+clusters are assigned to each row; otherwise, k-means clustering
+organizes colors based on their RGB values. This approach helps identify
+dominant color trends within different book genres.
+
+```{r}
+# k-means clustering to group colors into 6 clusters
+set.seed(123) 
+
+color_data_clustered <- color_data |> 
+  group_by(category) |> 
+  group_modify(~ {
+    if (nrow(.x) < 6) {
+      .x$cluster <- as.factor(seq_len(nrow(.x)))  
+    } else {
+      kmeans_result <- kmeans(.x[, c("R", "G", "B")], centers = 6)
+      .x$cluster <- as.factor(kmeans_result$cluster)
+    }
+    return(.x)
+  }) |> 
+  ungroup()
+
+```
+
+### Cluster representative
+
+To refine the previous clustering step, we chose to identify
+representative color for each cluster. This provides a simplified way to
+analyze dominant colors within each cluster.
+
+```{r}
+# Map clusters to representative colors 
+cluster_representative <- color_data_clustered |> 
+  group_by(category, cluster) |> 
+  summarise(representative_color = first(hex))  
+
+# Pick first as representative
+```
+
+### Map clusters
+
+Following the cluster simplification, we joined the clusters and
+representative colors to the expanded dataset.
+
+```{r}
+# Replace original colors with their cluster representative
+best_books_clustered <- best_books_expanded |> 
+    full_join(color_data_clustered, by = c("colors", "category", "title", "author", "webpage")) |> 
+    full_join(cluster_representative, by = c("category", "cluster"))
+
+```
+
+## Representation of colors per category
+
+Afterwards, we calculate the frequency of each color within each
+category, rank them in descending order, and select the six most common
+colors per category.
+
+```{r}
+# Count occurrences of grouped colors per category
+color_counts <- best_books_clustered |> 
+  group_by(category, representative_color) |> 
+  summarise(Freq = n(), .groups = "drop") |> 
+  arrange(category, desc(Freq))
+
+top_colors_all <- color_counts |> 
+  group_by(category) |> 
+  arrange(desc(Freq)) |> 
+  slice_head(n = 6) |> 
+  mutate(position = row_number()) |> 
+  ungroup()
+
+```
+
+### Color representation per category
+
+```{r}
+# Ensure text color contrasts with background
+top_colors_all <- top_colors_all |> 
+  mutate(text_color = ifelse(
+    (col2rgb(representative_color)[1,] * 0.299 +
+     col2rgb(representative_color)[2,] * 0.587 +
+     col2rgb(representative_color)[3,] * 0.114) > 150, 
+    "black", "white"
+  ))
+
+
+ggplot(top_colors_all, aes(x = factor(position), y = category, fill = representative_color)) +
+    geom_tile(color = "gray70", linewidth = 0.7) +  
+    geom_text(aes(label = representative_color, color = text_color), 
+              size = 5, fontface = "bold") +  
+    scale_fill_identity() +  
+    scale_color_identity() +  
+    theme_minimal(base_size = 14) +
+    labs(title = "Top 6 Most Frequent Colors by Category",
+         subtitle = "Most dominant colors used in book covers across different genres",
+         x = NULL, y = NULL) +
+   theme(
+    panel.background = element_rect(fill = "transparent", color = NA),  
+    plot.background = element_rect(fill = "transparent", color = NA),   
+    panel.grid = element_blank(), 
+    axis.text.x = element_blank(),  
+    axis.ticks = element_blank(),
+    strip.text = element_text(face = "bold", size = 12), 
+    axis.text.y = element_text(face = "bold", size = 12),  
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5)
+)
+
+
+```
+
+### Color representation per category and webpage
+
+Furthermore, we repeated the previous analysis for each webpage,
+representing the color palette of each category per source. The
+comparative analysis reveals notable differences in color usage between
+the two platforms, indicating potential variations in design
+preferences, marketing strategies, or audience expectations.
+
+```{r}
+cluster_representative <- color_data_clustered |> 
+  group_by(category, cluster, webpage) |> 
+  summarise(representative_color = first(hex)) 
+
+best_books_clustered <- best_books_expanded |> 
+    full_join(color_data_clustered, by = c("colors", "category", "title", "author", "webpage")) |> 
+    full_join(cluster_representative, by = c("category", "cluster", "webpage"))
+
+top_colors_all <- best_books_clustered |> 
+  group_by(category, webpage, representative_color) |> 
+  summarise(Freq = n(), .groups = "drop") |> 
+  arrange(category, webpage, desc(Freq)) |>   # Ensure webpage is considered
+  group_by(category, webpage) |> 
+  slice_head(n = 6) |> 
+  mutate(position = row_number()) |>  
+  ungroup() |> 
+  mutate(text_color = ifelse(
+    grepl("^#", representative_color),  # Ensure it's a hex color
+    ifelse(
+      (col2rgb(representative_color)[1,] * 0.299 +
+       col2rgb(representative_color)[2,] * 0.587 +
+       col2rgb(representative_color)[3,] * 0.114) > 150, 
+      "black", "white"
+    ), 
+    "black"  # Default to black if invalid color
+  ))
+
+
+ggplot(top_colors_all, aes(x = position, y = category, fill = representative_color)) +
+    geom_tile(color = "white", size = 0.5) + 
+    geom_text(aes(label = representative_color, color = text_color), size = 3, fontface = "bold") +  
+    scale_fill_identity() +  
+    scale_color_identity() +  
+    theme_minimal() +
+    labs(title = "Top 6 Most Frequent Colors by Category and Source", x = NULL, y = NULL) +
+    theme(
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        strip.text = element_text(face = "bold", size = 12),
+        axis.text.y = element_text(face = "bold", size = 10)
+    ) +
+    facet_wrap(~webpage)  # Should separate by webpage
+
+
+
+```
+
+For example, *Science Fiction* on Casa del Libro features vibrant
+purples, blues, and neon greens, whereas in Goodreads the palette
+reflects subdued tones like gray and dark green. And in *Romance*, Casa
+del Libro highlights deep reds and warm neutrals, while Goodreads
+includes brighter blues and greens.
+
+## Top author
+
+In addition, we identified the most frequently occurring colors in the
+book covers of the most prolific author in the dataset and visualized
+the color palette. The script first determines the top author based on
+the number of books, then extracts the six most dominant colors from
+their book covers and each color is displayed as a tile in a bar-like
+palette, with contrasting text labels for readability.
+
+```{r}
+
+top_author <- best_books %>% 
+    count(author, sort = TRUE) %>% 
+    arrange(desc(n)) %>%
+    slice(1) %>%
+    pull(author) %>% 
+    .[[1]]  # Force extraction of only the first element
+
+
+top_authors_colors <- best_books %>% 
+    filter(author == top_author) %>% 
+    unnest_longer(colors) %>% 
+    count(author, colors, sort = TRUE)  %>% 
+    slice_head(n = 6) %>% 
+    mutate(rank = row_number())  %>% 
+    ungroup()  %>%
+  mutate(text_color = ifelse(
+    grepl("^#", colors),  # Ensure it's a hex color
+    ifelse(
+      (col2rgb(colors)[1,] * 0.299 +
+       col2rgb(colors)[2,] * 0.587 +
+       col2rgb(colors)[3,] * 0.114) > 150, 
+      "black", "white"
+    ), 
+    "black"  # Default to black if invalid color
+  ))
+
+ggplot(top_authors_colors, aes(x = rank, y = reorder(author, -n), fill = colors)) +
+    geom_tile(color = "white", size = 0.5) + 
+    geom_text(aes(label = colors, color = text_color), size = 3, fontface = "bold") +  
+    scale_fill_identity() +  
+    scale_color_identity() +   
+    theme_minimal() +
+    labs(title = "Top Author Palette",
+         x = "", y = "") +
+    theme(axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          panel.grid = element_blank())
+
+```
+
+## Top 5 authors
+
+For further analysis, we selected the top 5 authors in our dataset
+visualizing their six most frequent colors found in their book covers.
+
+```{r}
+top_authors <- best_books  %>%
+    count(author, sort = TRUE) %>% 
+    arrange(desc(n))  %>% 
+    slice(1)  %>%  
+    pull(author)  %>%   
+    head(5)  # Keep only the first 5 elements
+
+
+top_authors_colors <- best_books  %>% 
+    filter(author %in% top_authors) %>% 
+    unnest_longer(colors) %>%  
+    count(author, category, colors, sort = TRUE) %>% 
+    group_by(author, category) %>%   
+    slice_head(n = 6)  %>%  
+    mutate(rank = row_number()) %>%  
+    ungroup() %>% 
+    mutate(author_label = paste0(author, " (", category, ")")) %>% 
+    mutate(text_color = ifelse(
+        grepl("^#", colors),  
+        ifelse(
+            (col2rgb(colors)[1,] * 0.299 +
+             col2rgb(colors)[2,] * 0.587 +
+             col2rgb(colors)[3,] * 0.114) > 150, 
+            "black", "white"
+        ), 
+        "black"  
+    ))
+
+
+ggplot(top_authors_colors, aes(x = rank, y = reorder(author_label, -n), fill = colors)) +
+    geom_tile(color = "gray", size = 0.5) +  
+    geom_text(aes(label = colors, color = text_color), size = 3, fontface = "bold") +  
+    scale_fill_identity() +  
+    scale_color_identity() +   
+    theme_minimal() +
+    labs(title = "Top 6 Colors for the 5 Most Prolific Authors",
+         x = "", y = "") + 
+    theme(axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          panel.grid = element_blank())
+
+
+```
+
+Here it can be observed that the color palettes used by different
+authors show significant variation without a clear pattern.
+
+Regarding romance authors, Julia Quinn's covers predominantly feature
+soft, pastel shades, while in contrast, Megan Maxwell's books lean
+towards dark and muted tones.
+
+Similarly, science fiction author Brandon Sanderson and Philip K. Dick
+show different patterns, the former's covers mix dark and neutral shades
+while the latter's books stand out with a primarily white and
+light-colored palette.
+
+This visualization provides insights into the color trends associated
+with an author’s book covers, which can be useful for design analysis
+and trend exploration.
+
+# Shiny app
+
+To examine all the analysis and the different palettes obtained, we developed a shiny app that allows users to explore the most dominant colors used in book covers.
+
+```{r}
+
+ui <- fluidPage(
+  theme = shinytheme("flatly"),
+  useShinyjs(),  
+  
+  titlePanel("The Bestseller Palette"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      pickerInput("category_select", "Select a category:",
+                  choices = c("All", unique(best_books$category)),
+                  selected = "All", multiple = FALSE, 
+                  options = list(`style` = "btn-primary")),
+      
+      pickerInput("author_select", "Select an author:",
+                  choices = c("All"),
+                  selected = "All", multiple = FALSE, 
+                  options = list(`style` = "btn-info"))
+    ),
+    
+    mainPanel(
+      tabsetPanel(id = "selected_tab",
+                  
+        tabPanel("Book covers", fluidRow(uiOutput("book_images"))),
+        
+        tabPanel("Platform Palette", plotOutput("colorTiles")),
+        
+        tabPanel("Author Analysis", 
+                 plotOutput("colorPlot"),
+                 uiOutput("bookImages"))
+      )
+    )
+  )
+)
+
+# Server
+server <- function(input, output, session) {
+  
+  # Filtrar datos
+  filtered_data <- reactive({
+    data <- best_books
+    
+    if (input$category_select != "All") {
+      data <- data %>% filter(category == input$category_select)
+    }
+    
+    if (input$author_select != "All") {
+      data <- data %>% filter(author == input$author_select)
+    }
+    
+    return(data)
+  })
+  
+  # Actualizar autores según categoría seleccionada
+  observeEvent(input$category_select, {
+    category_data <- filtered_data()
+    
+    updatePickerInput(session, "author_select", 
+                      choices = c("All", unique(category_data$author)),
+                      selected = "All")
+  })
+  
+  # Renderizar imágenes de libros
+  output$book_images <- renderUI({
+    data <- filtered_data()
+    
+    if (nrow(data) == 0) {
+      return(tags$p("No se encontraron libros que coincidan con los filtros seleccionados."))
+    }
+    
+    image_elements <- lapply(1:nrow(data), function(i) {
+      colors_list <- data$colors[[i]]
+      if (is.list(colors_list)) {
+        colors_list <- unlist(colors_list)
+      }
+      
+      color_tiles <- tags$div(
+        style = "display: flex; justify-content: center; margin-top: 5px;",
+        lapply(colors_list, function(color) {
+          tags$div(
+            style = paste("background-color:", color, "; width: 30px; height: 30px; margin: 3px; border-radius: 3px;")
+          )
+        })
+      )
+      
+      color_bar <- tags$div(
+        style = paste("background: linear-gradient(to right, ", paste(colors_list, collapse = ", "), "); 
+                      height: 30px; width: 200px; margin-top: 5px; border-radius: 3px;")
+      )
+      
+      img_element <- tags$div(
+        style = "text-align: center; margin: 5px;",
+        tags$img(src = data$img_url[i], width = "150px", height = "225px")
+      )
+      
+      combined_element <- tags$div(
+        style = "width: 18%; max-width: 180px; display: flex; flex-direction: column; align-items: center; margin: 30px;",
+        img_element,
+        color_tiles,
+        color_bar
+      )
+      
+      combined_element
+    })
+    
+    tags$div(
+      style = "display: flex; flex-wrap: wrap; justify-content: center; 
+               max-width: 100%; margin-left: auto; margin-right: auto; gap: 30px;",
+      do.call(tagList, image_elements)
+    )
+  })
+  
+  # Platform Palette
+  output$colorTiles <- renderPlot({
+    color_data <- top_colors_all
+    if (input$category_select != "All") {
+      color_data <- color_data %>% filter(category == input$category_select)
+    }
+    
+    ggplot(color_data, aes(x = factor(position), y = webpage, fill = representative_color)) +
+      geom_tile(width = 0.95, height = 0.95) +
+      scale_fill_identity() +
+      theme_minimal() +
+      labs(title = "",
+           x = "", y = "") +
+      theme(axis.text.x = element_blank(), 
+            axis.ticks.x = element_blank(), 
+            panel.grid = element_blank())
+  })
+  
+  # Control de habilitación del selector de autor
+  observeEvent(input$selected_tab, {
+    if (input$selected_tab == "Platform Palette") {
+      updatePickerInput(session, "author_select", selected = "All")
+      disable("author_select")  # Deshabilitar el picker de autores
+    } else if (input$selected_tab == "Author Analysis") {
+      enable("author_select")  # Habilitar el picker de autores
+    }
+  })
+  
+  # Filtrar libros por autor
+  filtered_books <- reactive({
+    best_books %>% filter(author == input$author_select)
+  })
+  
+  # Gráfico de colores
+  output$colorPlot <- renderPlot({
+    data <- filtered_books() %>%
+      unnest_longer(colors) %>%
+      count(author, colors, sort = TRUE) %>%
+      slice_head(n = 6) %>%
+      mutate(rank = row_number()) %>%
+      ungroup() %>%
+      mutate(text_color = ifelse(
+        (col2rgb(colors)[1,] * 0.299 +
+         col2rgb(colors)[2,] * 0.587 +
+         col2rgb(colors)[3,] * 0.114) > 150, 
+        "black", "white"
+      ))
+
+    ggplot(data, aes(x = rank, y = reorder(author, -n), fill = colors)) +
+      geom_tile(color = "white", size = 0.5) +
+      geom_text(aes(label = colors, color = text_color), size = 5, fontface = "bold") +
+      scale_fill_identity() +
+      scale_color_identity() +
+      theme_minimal() +
+      labs(title = "",
+           x = "", y = "") +
+      theme(axis.text.x = element_blank(), 
+            axis.ticks.x = element_blank(),
+            panel.grid = element_blank())
+  })
+  
+  # Mostrar imágenes de libros
+  output$bookImages <- renderUI({
+    books <- filtered_books()
+    img_tags <- lapply(books$img_url, function(url) {
+      tags$img(src = url, width = "100px", style = "margin: 5px;")
+    })
+    do.call(tagList, img_tags)
+  })
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)
+
+
+```
+
+
+
+# Conclusions
+
+The analysis of book cover colors across authors, genres, and platforms
+reveals no strict pattern but rather a dynamic interplay of artistic
+choices. While certain genres tend to favor specific color schemes —such
+as dark and cool tones for Young Adult Fantasy— there is considerable
+variation between platforms. Similarly, individual authors exhibit
+unique palettes, but there is no single defining scheme that dominates
+across their works.
+
+These findings suggest that book cover design is influenced by multiple
+factors beyond just genre or author branding, including publisher
+strategies, regional aesthetics, and reader preferences. The divergence
+in colors across platforms further implies that book marketing is
+tailored to different audiences, with some covers emphasizing vibrancy
+while others adopt more sophisticated tones. Ultimately, it can be
+concluded that visual identity is shaped by both artistic vision and
+market-driven considerations.
