@@ -19,7 +19,6 @@ The Book Cover Color Analysis project consists of the following components:
 ## Required packages
 
 ```{r}
-#| message: false
 
 library(ggplot2) # data visualization
 library(tidyverse) # data manipulation, cleaning, and transformation
