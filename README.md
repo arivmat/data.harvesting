@@ -1,5 +1,4 @@
-
-# Book Cover Color Analysis
+ # Book Cover Color Analysis
 
 > By Maria Carda & Andrea Rivera
 
@@ -20,6 +19,7 @@ The Book Cover Color Analysis project consists of the following components:
 ## Required packages
 
 ```{r}
+#| message: false
 
 library(ggplot2) # data visualization
 library(tidyverse) # data manipulation, cleaning, and transformation
@@ -43,18 +43,18 @@ To successfully run the project, follow these steps:
     -   [Docker](https://www.docker.com/products/docker-desktop/): Install Docker from Docker's official website.
     -   [VNC Viewer](https://www.realvnc.com/es/connect/download/viewer/): Download and install VNC Viewer from RealVNC.
 
-4.  Setup Rselenium: following the previous installation, it is required to open docker before running the code and log in with a user. Then, run the following commands in the R terminal:
+3.  Setup Rselenium: following the previous installation, it is required to open docker before running the code and log in with a user. Then, run the following commands in the R terminal:
 
     -   docker info
     -   docker run hello-world
     -   docker pull selenium/standalone-firefox-debug:latest
     -   docker run -d -p 4449:4444 -p 5901:5900 --platform linux/amd64 selenium/standalone-firefox-debug:latest
 
-5.  Run the application: Once all dependencies are installed and configured, the project can be run by opening R and executing the main script.
+4.  Run the application: Once all dependencies are installed and configured, the project can be run by opening R and executing the main script.
 
 ## Usage
 
-Once the project is set up and running, users can utilize the various data processing and visualization features seamlessly. The project enables web scraping to collect book cover images and extract dominant colors, allowing for an in-depth analysis of color trends across different authors and genres. Users can explore the most frequently used colors for different authors, genres, and sources,comparing trends.
+Once the project is set up and running, users can utilize the various data processing and visualization features seamlessly. The project enables web scraping to collect book cover images and extract dominant colors, allowing for an in-depth analysis of color trends across different authors and genres. Users can explore the most frequently used colors for different authors, genres, and sources, comparing trends.
 
 ## Features
 
@@ -63,7 +63,7 @@ The Book Cover Analysis project offers the following features:
 1.  Data Collection (`scrap_books)`: Load book metadata, including title, author, and cover image.
 2.  Color Extraction (`extract_colors)`: Identify dominant colors from book cover images.
 3.  Clustering & Cleaning: Group similar colors and remove duplicates.
-4.  Visualization: Generate plots and applications (shiny (https://mariacarda.shinyapps.io/data_harvesting_books/)) showing color distribution by author, webpage and category.
+4.  Visualization: Generate plots and applications ([shiny](https://mariacarda.shinyapps.io/data_harvesting_books/)) showing color distribution by author, webpage and category.
 
 ## Future Enhancements
 
@@ -78,6 +78,6 @@ Some future enhancements for the project include:
 
 This project provides an insightful exploration of book cover color palettes, revealing how different platforms, genres, and authors use color to establish visual identity. By leveraging web scraping, data processing, and visualization techniques, the project identifies trends in book cover designs across various sources. It serves as a foundation for further research into the relationship between book design and reader engagement, with potential future enhancements including machine learning-based cover analysis and real-time data updates.
 
-## Disclaimer 
+## Disclaimer
 
-This project was built with the academic purpose of practicing data harvesting techniques. We have not and will not use this project for commercial purposes. We do not condone anyone using this code for commercial purposes. Our intention of sharing this repository is to showcase our skills. 
+This project was built with the academic purpose of practicing data harvesting techniques. We have not and will not use this project for commercial purposes. We do not condone anyone using this code for commercial purposes. Our intention of sharing this repository is to showcase our skills.
