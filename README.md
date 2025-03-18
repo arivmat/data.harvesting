@@ -1,9 +1,3 @@
-```{=html}
-<style>
-body {
-text-align: justify}
-</style>
-```
 
 # Book Cover Color Analysis
 
