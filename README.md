@@ -20,7 +20,6 @@ The Book Cover Color Analysis project consists of the following components:
 ## Required packages
 
 ```{r}
-#| message: false
 
 library(ggplot2) # data visualization
 library(tidyverse) # data manipulation, cleaning, and transformation
@@ -55,7 +54,7 @@ To successfully run the project, follow these steps:
 
 ## Usage
 
-Once the project is set up and running, users can utilize the various data processing and visualization features seamlessly. The project enables web scraping to collect book cover images and extract dominant colors, allowing for an in-depth analysis of color trends across different authors and genres. Users can explore the most frequently used colors for different authors, genres, and sources, comparing trends.
+Once the project is set up and running, users can utilize the various data processing and visualization features seamlessly. The project enables web scraping to collect book cover images and extract dominant colors, allowing for an in-depth analysis of color trends across different authors and genres. Users can explore the most frequently used colors for different authors, genres, and sources,comparing trends.
 
 ## Features
 
@@ -64,7 +63,7 @@ The Book Cover Analysis project offers the following features:
 1.  Data Collection (`scrap_books)`: Load book metadata, including title, author, and cover image.
 2.  Color Extraction (`extract_colors)`: Identify dominant colors from book cover images.
 3.  Clustering & Cleaning: Group similar colors and remove duplicates.
-4.  Visualization: Generate plots and applications (shiny) showing color distribution by author, webpage and category.
+4.  Visualization: Generate plots and applications (shiny (https://mariacarda.shinyapps.io/data_harvesting_books/)) showing color distribution by author, webpage and category.
 
 ## Future Enhancements
 
