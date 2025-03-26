@@ -1,0 +1,119 @@
+---
+title: "The Bestseller Palette"
+subtitle: "Data-Backed Trends in Book Cover Color"
+author:  Maria Carda & Andrea Rivera
+title-slide-attributes:
+  data-background-image: images/background.jpg
+  data-background-opacity: "0.08"
+format: 
+  revealjs:
+    theme: [style.scss_slides]
+    code-overflow: scroll
+    menu:
+      side: left
+      width: normal
+    footer: "Master in Computational Social Sciences (UC3M)"
+    slide-number: c/t
+---
+
+### Book cover colors
+
+-   Crucial role in purchasing/reading decisions.
+-   Objective of the study:
+    -   **Analyze the color palettes of book covers across different genres**
+    -   **Bestsellers vs most popular books**
+
+::::: columns
+::: {.column width="60%"}
+![](images/casa_libro_logo.png){fig-align="center" width="361"}
+:::
+
+::: {.column width="40%"}
+![](images/goodreads_logo.png){width="98"}
+:::
+:::::
+
+------------------------------------------------------------------------
+
+### How?
+
+::: {.panel-tabset}
+
+## Tools
+
+| Casa del Libro | GoodReads |
+|--------------------------------------|------------------|
+| ![](images/docker.webp){width="120"}![](images/selenium.png){width="92"} | ![](images/rvest.png){width="88"} |
+
+## Functions
+
+-   **`scrap_books`**: scrap books from Casa del Libro
+-   **`extract_colors`**: pull out color form images url
+-   **`hex_to_rgb`**: convert hex colors to RGB for analysis
+-   **`color clustering`**: easier identification of colors
+
+## Results
+
+```{r}
+library(readxl)
+read_xlsx("best_books_expanded.xlsx")
+
+```
+
+:::
+
+------------------------------------------------------------------------
+
+### Analysis
+
+::: {.panel-tabset}
+
+## Category
+::: {style="text-align: center;"}
+![](images/category.png)
+:::
+
+## Category & web
+::: {style="text-align: center;"}
+![](images/category_web.png)
+:::
+
+## Top Author
+::: {style="text-align: center;"}
+![](images/topauthor.png)
+:::
+
+## Top 5 authors
+::: {style="text-align: center;"}
+![](images/top5.png)
+:::
+
+:::
+
+------------------------------------------------------------------------
+
+### Shiny app
+
+[App](https://mariacarda.shinyapps.io/data_harvesting_books/)
+
+<iframe src="https://mariacarda.shinyapps.io/data_harvesting_books/" width="10000px" height="500px" style="border: none;">
+
+</iframe>
+
+------------------------------------------------------------------------
+
+### Challenges
+
+-   Selection of unique name categories in Casa del Libro
+
+-   Same categories in both webpages
+
+-   Docker integration/port selection
+
+-   Last Firefox version in Selenium
+
+-   Color representation
+
+-   Shiny integration & publication
+
+# Thank you {.title-slide}
