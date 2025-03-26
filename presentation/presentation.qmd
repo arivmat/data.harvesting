@@ -16,7 +16,7 @@ format:
     slide-number: c/t
 ---
 
-## Book cover colors
+### Book cover colors
 
 -   Crucial role in purchasing/reading decisions.
 -   Objective of the study:
@@ -35,13 +35,15 @@ format:
 
 ------------------------------------------------------------------------
 
-## How?
+### How?
+
+::: {.panel-tabset}
+
+## Tools
 
 | Casa del Libro | GoodReads |
-|----------------------------------------------|-------------------------|
-| ![](images/docker.webp){width="120"} ![](images/selenium.png){width="92"} | ![](images/rvest.png){width="88"} |
-
-------------------------------------------------------------------------
+|--------------------------------------|------------------|
+| ![](images/docker.webp){width="120"}![](images/selenium.png){width="92"} | ![](images/rvest.png){width="88"} |
 
 ## Functions
 
@@ -50,297 +52,42 @@ format:
 -   **`hex_to_rgb`**: convert hex colors to RGB for analysis
 -   **`color clustering`**: easier identification of colors
 
-------------------------------------------------------------------------
-
-### scrap_books (Casa del Libro)
-
-```{r}
-#| message: false
-
-rm(list = ls()) 
-
-packages = c("RSelenium", "rvest", "magrittr", "tidyr", "dplyr", "magick", "tidyverse", "ggplot2", 
-             "scales", "shiny", "writexl", "shinyjs", "shinythemes","shinyWidgets", "rsconnect", 
-             "readxl", "httr")
-
-package.check <- lapply(packages,
-                        FUN = function(x){
-                          if (!require(x,character.only = TRUE)){
-                            install.packages(x,dependencies = TRUE)
-                            library(x, character.only = TRUE)
-                          }
-                        }
-)
-
-
-```
-
-```{r, echo=TRUE}
-
-scrap_books <- function(category_xpath, subcategory_xpath, category_name, num_pages = 10) {
-  
-  # Click in category
-  enlace <- remDr$findElement(using = "xpath", category_xpath)
-  enlace$clickElement()
-  
-  Sys.sleep(5)
-  
-  # Click in subcategory
-  enlace <- remDr$findElement(using = "xpath", subcategory_xpath)
-  enlace$clickElement()
-  
-  # Create empty lists to store data
-  all_titles <- c()
-  all_authors <- c()
-  all_img_urls <- c()
-
-  # Extract data in n pages
-  for (i in 1:num_pages) {
-    
-    Sys.sleep(5)  
-    
-    # Extract element of the book
-    product_elems <- remDr$findElements(using = "css selector", "div.compact-product")
-    product_html <- sapply(product_elems, function(x) x$getElementAttribute("outerHTML")[[1]])
-    parsed_products <- lapply(product_html, read_html)
-    
-    # Titles
-    titles <- sapply(parsed_products, function(x) x |> 
-                       html_node("a.product-title") |> 
-                       html_text())
-    
-    # Authors
-    authors <- sapply(parsed_products, function(x) {
-      author_node <- x |> 
-        html_node("p.truncate-text")
-      if (!is.null(author_node)) html_text(author_node) else NA
-    })
-    
-    # Images' url
-    img_urls <- sapply(parsed_products, function(x) {
-      x %>% html_node("img") |> 
-        html_attr("src")
-    })
-    
-    # Save in empty lists
-    all_titles <- c(all_titles, titles)
-    all_authors <- c(all_authors, authors)
-    all_img_urls <- c(all_img_urls, img_urls)
-    
-    # Go to next page
-    boton_pagina <- tryCatch({
-      remDr$findElement(using = "xpath", paste0("//button[normalize-space(text())='", i + 1, "']"))
-    }, error = function(e) NULL)
-    
-    if (!is.null(boton_pagina)) {
-      boton_pagina$clickElement()
-      Sys.sleep(5)  
-      remDr$refresh() 
-    } else {
-      message("Button ", i + 1, "not found.")
-      break
-    }
-  }
-
-  
-  # Create dataframe with the data
-  result <- data.frame(
-    category = category_name,
-    title = all_titles,
-    author = all_authors,
-    img_url = all_img_urls,
-    stringsAsFactors = FALSE
-  )
-  
-  return(result)
-} 
-```
-
-------------------------------------------------------------------------
-
-### Goodreads scrapping
-
-```{r, eval=FALSE, echo=TRUE}
-
-url <- "https://www.goodreads.com/choiceawards/readers-favorite-mystery-thriller-books-2024"
-url2 <- "https://www.goodreads.com/choiceawards/readers-favorite-romance-books-2024"
-url3 <- "https://www.goodreads.com/choiceawards/readers-favorite-ya-fantasy-books-2024"
-url4 <- "https://www.goodreads.com/choiceawards/readers-favorite-science-fiction-books-2024"
-url5 <- "https://www.goodreads.com/choiceawards/readers-favorite-history-bio-books-2024"
-urls <- c(url, url2, url3, url4, url5)
-
-goodreads <- data.frame()
-
-## Loop to extract the data
-for (url in urls) {
-    page <- read_html(url)
-    
-    # Extract book titles
-    titles <- page %>%
-        html_nodes(".pollAnswer__bookLink img") %>% 
-        html_attr("alt")
-    
-    # Extract cover images
-    covers <- page %>%
-        html_nodes(".pollAnswer__bookLink img") %>% 
-        html_attr("src")
-    
-    # Extract category from the HTML
-    category <- page %>%
-        html_element(".gcaMastheader") %>%  
-        html_text() %>%  
-        gsub("Readers' Favorite ", "", .) 
-    
-    # Create a temporary data frame
-    temp_books <- data.frame(title = titles, img_url = covers, category = category, stringsAsFactors = FALSE)
-    
-    # Append to the main data frame
-    goodreads <- bind_rows(goodreads, temp_books)
-}
-
-# Use general expression to separate title and author
-goodreads <- goodreads |> 
-  rowwise() |> 
-  mutate(author = str_extract(title, "(?<= by ).*"),
-        title = str_extract(title, ".*(?= by )"))
-
-
-```
-
-------------------------------------------------------------------------
-
-### extract_colors
-
-```{r, echo=TRUE}
-
-extract_colors <- function(image_url, n_colors = 6) {
-  
-  # read image from url
-  img <- image_read(image_url)  |> 
-    image_resize("50x50") # Resize to reduce processing time
-  
-  # Convert the image to pixel data
-  img_data <- image_data(img)
-  
-  # Check if the structure is a bitmap
-  if (inherits(img_data, "bitmap")) {
-    # If it is a bitmap, we convert it to a numeric format
-    img_data <- as.integer(img_data) / 255
-  }
-  
-  # Convert the image to a data frame
-  # Extract the RGB channels
-  df <- data.frame(
-    red = as.vector(img_data[,,1]),    # Red
-    green = as.vector(img_data[,,2]),  # Green
-    blue = as.vector(img_data[,,3])    # Blue
-  )
-  
-  # Apply k-means to find dominant colors
-  kmeans_result <- kmeans(df, centers = n_colors, nstart = 25, iter.max = 100)
-  
-  # Convert dominant colors to RGB format
-  dominant_colors <- rgb(kmeans_result$centers[,1],
-                         kmeans_result$centers[,2],
-                         kmeans_result$centers[,3], maxColorValue = 1)
-  
-  # Return colors as a vector of colors 
-  return(dominant_colors)
-}
-
-```
-
-------------------------------------------------------------------------
-
-### hex_to_rgb
-
-```{r, echo=TRUE}
-
-hex_to_rgb <- function(hex) {
-  rgb_matrix <- col2rgb(hex) / 255  
-  data.frame(hex = hex, R = rgb_matrix[1, ], G = rgb_matrix[2, ], B = rgb_matrix[3, ])
-}
-```
-
-------------------------------------------------------------------------
-
-### color clustering
-
-```{r, eval=FALSE, echo=TRUE}
-# k-means clustering to group colors into 6 clusters
-set.seed(123) 
-
-color_data_clustered <- color_data |> 
-  group_by(category) |> 
-  group_modify(~ {
-    if (nrow(.x) < 6) {
-      .x$cluster <- as.factor(seq_len(nrow(.x)))  
-    } else {
-      kmeans_result <- kmeans(.x[, c("R", "G", "B")], centers = 6)
-      .x$cluster <- as.factor(kmeans_result$cluster)
-    }
-    return(.x)
-  }) |> 
-  ungroup()
-
-# Map clusters to representative colors 
-cluster_representative <- color_data_clustered |> 
-  group_by(category, cluster) |> 
-  summarise(representative_color = first(hex))  
-```
-
-------------------------------------------------------------------------
-
 ## Results
 
 ```{r}
-
+library(readxl)
 read_xlsx("best_books_expanded.xlsx")
 
 ```
 
+:::
+
 ------------------------------------------------------------------------
 
 ### Analysis
 
-| Color representation per category |     |
-|-----------------------------------|-----|
+::: {.panel-tabset}
 
+## Category
 ::: {style="text-align: center;"}
 ![](images/category.png)
 :::
 
-------------------------------------------------------------------------
-
-### Analysis
-
-| Color representation per category and webpage |     |
-|-----------------------------------------------|-----|
-
+## Category & web
 ::: {style="text-align: center;"}
 ![](images/category_web.png)
 :::
 
-------------------------------------------------------------------------
-
-### Analysis
-
-| Color representation for top author |     |
-|-------------------------------------|-----|
-
+## Top Author
 ::: {style="text-align: center;"}
 ![](images/topauthor.png)
 :::
 
-------------------------------------------------------------------------
-
-### Analysis
-
-| Color representation for top 5 authors |     |
-|----------------------------------------|-----|
-
+## Top 5 authors
 ::: {style="text-align: center;"}
 ![](images/top5.png)
+:::
+
 :::
 
 ------------------------------------------------------------------------
@@ -355,7 +102,7 @@ read_xlsx("best_books_expanded.xlsx")
 
 ------------------------------------------------------------------------
 
-## Challenges
+### Challenges
 
 -   Selection of unique name categories in Casa del Libro
 

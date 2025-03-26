@@ -29,71 +29,6 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
-    /* CSS for syntax highlighting */
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      { color: #003b4f; background-color: #f1f3f5; }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span { color: #003b4f; } /* Normal */
-    code span.al { color: #ad0000; } /* Alert */
-    code span.an { color: #5e5e5e; } /* Annotation */
-    code span.at { color: #657422; } /* Attribute */
-    code span.bn { color: #ad0000; } /* BaseN */
-    code span.bu { } /* BuiltIn */
-    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #20794d; } /* Char */
-    code span.cn { color: #8f5902; } /* Constant */
-    code span.co { color: #5e5e5e; } /* Comment */
-    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
-    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
-    code span.dt { color: #ad0000; } /* DataType */
-    code span.dv { color: #ad0000; } /* DecVal */
-    code span.er { color: #ad0000; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #ad0000; } /* Float */
-    code span.fu { color: #4758ab; } /* Function */
-    code span.im { color: #00769e; } /* Import */
-    code span.in { color: #5e5e5e; } /* Information */
-    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
-    code span.op { color: #5e5e5e; } /* Operator */
-    code span.ot { color: #003b4f; } /* Other */
-    code span.pp { color: #ad0000; } /* Preprocessor */
-    code span.sc { color: #5e5e5e; } /* SpecialChar */
-    code span.ss { color: #20794d; } /* SpecialString */
-    code span.st { color: #20794d; } /* String */
-    code span.va { color: #111111; } /* Variable */
-    code span.vs { color: #20794d; } /* VerbatimString */
-    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto.css">
   <link href="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
@@ -403,8 +338,9 @@ Maria Carda &amp; Andrea Rivera
 </div>
 
 </section>
-<section id="book-cover-colors" class="slide level2">
-<h2>Book cover colors</h2>
+<section class="slide level2">
+
+<h3 id="book-cover-colors">Book cover colors</h3>
 <ul>
 <li>Crucial role in purchasing/reading decisions.</li>
 <li>Objective of the study:
@@ -424,12 +360,17 @@ Maria Carda &amp; Andrea Rivera
 <p><img data-src="images/goodreads_logo.png" width="98"></p>
 </div></div>
 </section>
-<section id="how" class="slide level2">
-<h2>How?</h2>
+<section class="slide level2">
+
+<h3 id="how">How?</h3>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Tools</a></li><li><a href="#tabset-1-2">Functions</a></li><li><a href="#tabset-1-3">Results</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
 <table class="caption-top">
 <colgroup>
-<col style="width: 64%">
-<col style="width: 35%">
+<col style="width: 67%">
+<col style="width: 32%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -439,229 +380,21 @@ Maria Carda &amp; Andrea Rivera
 </thead>
 <tbody>
 <tr class="odd">
-<td><img data-src="images/docker.webp" width="120"> <img data-src="images/selenium.png" width="92"></td>
+<td><img data-src="images/docker.webp" width="120"><img data-src="images/selenium.png" width="92"></td>
 <td><img data-src="images/rvest.png" width="88"></td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="functions" class="slide level2">
-<h2>Functions</h2>
+</div>
+<div id="tabset-1-2">
 <ul>
 <li><strong><code>scrap_books</code></strong>: scrap books from Casa del Libro</li>
 <li><strong><code>extract_colors</code></strong>: pull out color form images url</li>
 <li><strong><code>hex_to_rgb</code></strong>: convert hex colors to RGB for analysis</li>
 <li><strong><code>color clustering</code></strong>: easier identification of colors</li>
 </ul>
-</section>
-<section class="slide level2">
-
-<h3 id="scrap_books-casa-del-libro">scrap_books (Casa del Libro)</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>scrap_books <span class="ot">&lt;-</span> <span class="cf">function</span>(category_xpath, subcategory_xpath, category_name, <span class="at">num_pages =</span> <span class="dv">10</span>) {</span>
-<span id="cb1-2"><a href=""></a>  </span>
-<span id="cb1-3"><a href=""></a>  <span class="co"># Click in category</span></span>
-<span id="cb1-4"><a href=""></a>  enlace <span class="ot">&lt;-</span> remDr<span class="sc">$</span><span class="fu">findElement</span>(<span class="at">using =</span> <span class="st">"xpath"</span>, category_xpath)</span>
-<span id="cb1-5"><a href=""></a>  enlace<span class="sc">$</span><span class="fu">clickElement</span>()</span>
-<span id="cb1-6"><a href=""></a>  </span>
-<span id="cb1-7"><a href=""></a>  <span class="fu">Sys.sleep</span>(<span class="dv">5</span>)</span>
-<span id="cb1-8"><a href=""></a>  </span>
-<span id="cb1-9"><a href=""></a>  <span class="co"># Click in subcategory</span></span>
-<span id="cb1-10"><a href=""></a>  enlace <span class="ot">&lt;-</span> remDr<span class="sc">$</span><span class="fu">findElement</span>(<span class="at">using =</span> <span class="st">"xpath"</span>, subcategory_xpath)</span>
-<span id="cb1-11"><a href=""></a>  enlace<span class="sc">$</span><span class="fu">clickElement</span>()</span>
-<span id="cb1-12"><a href=""></a>  </span>
-<span id="cb1-13"><a href=""></a>  <span class="co"># Create empty lists to store data</span></span>
-<span id="cb1-14"><a href=""></a>  all_titles <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb1-15"><a href=""></a>  all_authors <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb1-16"><a href=""></a>  all_img_urls <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb1-17"><a href=""></a></span>
-<span id="cb1-18"><a href=""></a>  <span class="co"># Extract data in n pages</span></span>
-<span id="cb1-19"><a href=""></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_pages) {</span>
-<span id="cb1-20"><a href=""></a>    </span>
-<span id="cb1-21"><a href=""></a>    <span class="fu">Sys.sleep</span>(<span class="dv">5</span>)  </span>
-<span id="cb1-22"><a href=""></a>    </span>
-<span id="cb1-23"><a href=""></a>    <span class="co"># Extract element of the book</span></span>
-<span id="cb1-24"><a href=""></a>    product_elems <span class="ot">&lt;-</span> remDr<span class="sc">$</span><span class="fu">findElements</span>(<span class="at">using =</span> <span class="st">"css selector"</span>, <span class="st">"div.compact-product"</span>)</span>
-<span id="cb1-25"><a href=""></a>    product_html <span class="ot">&lt;-</span> <span class="fu">sapply</span>(product_elems, <span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">getElementAttribute</span>(<span class="st">"outerHTML"</span>)[[<span class="dv">1</span>]])</span>
-<span id="cb1-26"><a href=""></a>    parsed_products <span class="ot">&lt;-</span> <span class="fu">lapply</span>(product_html, read_html)</span>
-<span id="cb1-27"><a href=""></a>    </span>
-<span id="cb1-28"><a href=""></a>    <span class="co"># Titles</span></span>
-<span id="cb1-29"><a href=""></a>    titles <span class="ot">&lt;-</span> <span class="fu">sapply</span>(parsed_products, <span class="cf">function</span>(x) x <span class="sc">|&gt;</span> </span>
-<span id="cb1-30"><a href=""></a>                       <span class="fu">html_node</span>(<span class="st">"a.product-title"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb1-31"><a href=""></a>                       <span class="fu">html_text</span>())</span>
-<span id="cb1-32"><a href=""></a>    </span>
-<span id="cb1-33"><a href=""></a>    <span class="co"># Authors</span></span>
-<span id="cb1-34"><a href=""></a>    authors <span class="ot">&lt;-</span> <span class="fu">sapply</span>(parsed_products, <span class="cf">function</span>(x) {</span>
-<span id="cb1-35"><a href=""></a>      author_node <span class="ot">&lt;-</span> x <span class="sc">|&gt;</span> </span>
-<span id="cb1-36"><a href=""></a>        <span class="fu">html_node</span>(<span class="st">"p.truncate-text"</span>)</span>
-<span id="cb1-37"><a href=""></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(author_node)) <span class="fu">html_text</span>(author_node) <span class="cf">else</span> <span class="cn">NA</span></span>
-<span id="cb1-38"><a href=""></a>    })</span>
-<span id="cb1-39"><a href=""></a>    </span>
-<span id="cb1-40"><a href=""></a>    <span class="co"># Images' url</span></span>
-<span id="cb1-41"><a href=""></a>    img_urls <span class="ot">&lt;-</span> <span class="fu">sapply</span>(parsed_products, <span class="cf">function</span>(x) {</span>
-<span id="cb1-42"><a href=""></a>      x <span class="sc">%&gt;%</span> <span class="fu">html_node</span>(<span class="st">"img"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb1-43"><a href=""></a>        <span class="fu">html_attr</span>(<span class="st">"src"</span>)</span>
-<span id="cb1-44"><a href=""></a>    })</span>
-<span id="cb1-45"><a href=""></a>    </span>
-<span id="cb1-46"><a href=""></a>    <span class="co"># Save in empty lists</span></span>
-<span id="cb1-47"><a href=""></a>    all_titles <span class="ot">&lt;-</span> <span class="fu">c</span>(all_titles, titles)</span>
-<span id="cb1-48"><a href=""></a>    all_authors <span class="ot">&lt;-</span> <span class="fu">c</span>(all_authors, authors)</span>
-<span id="cb1-49"><a href=""></a>    all_img_urls <span class="ot">&lt;-</span> <span class="fu">c</span>(all_img_urls, img_urls)</span>
-<span id="cb1-50"><a href=""></a>    </span>
-<span id="cb1-51"><a href=""></a>    <span class="co"># Go to next page</span></span>
-<span id="cb1-52"><a href=""></a>    boton_pagina <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb1-53"><a href=""></a>      remDr<span class="sc">$</span><span class="fu">findElement</span>(<span class="at">using =</span> <span class="st">"xpath"</span>, <span class="fu">paste0</span>(<span class="st">"//button[normalize-space(text())='"</span>, i <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"']"</span>))</span>
-<span id="cb1-54"><a href=""></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span>)</span>
-<span id="cb1-55"><a href=""></a>    </span>
-<span id="cb1-56"><a href=""></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(boton_pagina)) {</span>
-<span id="cb1-57"><a href=""></a>      boton_pagina<span class="sc">$</span><span class="fu">clickElement</span>()</span>
-<span id="cb1-58"><a href=""></a>      <span class="fu">Sys.sleep</span>(<span class="dv">5</span>)  </span>
-<span id="cb1-59"><a href=""></a>      remDr<span class="sc">$</span><span class="fu">refresh</span>() </span>
-<span id="cb1-60"><a href=""></a>    } <span class="cf">else</span> {</span>
-<span id="cb1-61"><a href=""></a>      <span class="fu">message</span>(<span class="st">"Button "</span>, i <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"not found."</span>)</span>
-<span id="cb1-62"><a href=""></a>      <span class="cf">break</span></span>
-<span id="cb1-63"><a href=""></a>    }</span>
-<span id="cb1-64"><a href=""></a>  }</span>
-<span id="cb1-65"><a href=""></a></span>
-<span id="cb1-66"><a href=""></a>  </span>
-<span id="cb1-67"><a href=""></a>  <span class="co"># Create dataframe with the data</span></span>
-<span id="cb1-68"><a href=""></a>  result <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-69"><a href=""></a>    <span class="at">category =</span> category_name,</span>
-<span id="cb1-70"><a href=""></a>    <span class="at">title =</span> all_titles,</span>
-<span id="cb1-71"><a href=""></a>    <span class="at">author =</span> all_authors,</span>
-<span id="cb1-72"><a href=""></a>    <span class="at">img_url =</span> all_img_urls,</span>
-<span id="cb1-73"><a href=""></a>    <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
-<span id="cb1-74"><a href=""></a>  )</span>
-<span id="cb1-75"><a href=""></a>  </span>
-<span id="cb1-76"><a href=""></a>  <span class="fu">return</span>(result)</span>
-<span id="cb1-77"><a href=""></a>} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section class="slide level2">
-
-<h3 id="goodreads-scrapping">Goodreads scrapping</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>url <span class="ot">&lt;-</span> <span class="st">"https://www.goodreads.com/choiceawards/readers-favorite-mystery-thriller-books-2024"</span></span>
-<span id="cb2-2"><a href=""></a>url2 <span class="ot">&lt;-</span> <span class="st">"https://www.goodreads.com/choiceawards/readers-favorite-romance-books-2024"</span></span>
-<span id="cb2-3"><a href=""></a>url3 <span class="ot">&lt;-</span> <span class="st">"https://www.goodreads.com/choiceawards/readers-favorite-ya-fantasy-books-2024"</span></span>
-<span id="cb2-4"><a href=""></a>url4 <span class="ot">&lt;-</span> <span class="st">"https://www.goodreads.com/choiceawards/readers-favorite-science-fiction-books-2024"</span></span>
-<span id="cb2-5"><a href=""></a>url5 <span class="ot">&lt;-</span> <span class="st">"https://www.goodreads.com/choiceawards/readers-favorite-history-bio-books-2024"</span></span>
-<span id="cb2-6"><a href=""></a>urls <span class="ot">&lt;-</span> <span class="fu">c</span>(url, url2, url3, url4, url5)</span>
-<span id="cb2-7"><a href=""></a></span>
-<span id="cb2-8"><a href=""></a>goodreads <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
-<span id="cb2-9"><a href=""></a></span>
-<span id="cb2-10"><a href=""></a><span class="do">## Loop to extract the data</span></span>
-<span id="cb2-11"><a href=""></a><span class="cf">for</span> (url <span class="cf">in</span> urls) {</span>
-<span id="cb2-12"><a href=""></a>    page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span>
-<span id="cb2-13"><a href=""></a>    </span>
-<span id="cb2-14"><a href=""></a>    <span class="co"># Extract book titles</span></span>
-<span id="cb2-15"><a href=""></a>    titles <span class="ot">&lt;-</span> page <span class="sc">%&gt;%</span></span>
-<span id="cb2-16"><a href=""></a>        <span class="fu">html_nodes</span>(<span class="st">".pollAnswer__bookLink img"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-17"><a href=""></a>        <span class="fu">html_attr</span>(<span class="st">"alt"</span>)</span>
-<span id="cb2-18"><a href=""></a>    </span>
-<span id="cb2-19"><a href=""></a>    <span class="co"># Extract cover images</span></span>
-<span id="cb2-20"><a href=""></a>    covers <span class="ot">&lt;-</span> page <span class="sc">%&gt;%</span></span>
-<span id="cb2-21"><a href=""></a>        <span class="fu">html_nodes</span>(<span class="st">".pollAnswer__bookLink img"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-22"><a href=""></a>        <span class="fu">html_attr</span>(<span class="st">"src"</span>)</span>
-<span id="cb2-23"><a href=""></a>    </span>
-<span id="cb2-24"><a href=""></a>    <span class="co"># Extract category from the HTML</span></span>
-<span id="cb2-25"><a href=""></a>    category <span class="ot">&lt;-</span> page <span class="sc">%&gt;%</span></span>
-<span id="cb2-26"><a href=""></a>        <span class="fu">html_element</span>(<span class="st">".gcaMastheader"</span>) <span class="sc">%&gt;%</span>  </span>
-<span id="cb2-27"><a href=""></a>        <span class="fu">html_text</span>() <span class="sc">%&gt;%</span>  </span>
-<span id="cb2-28"><a href=""></a>        <span class="fu">gsub</span>(<span class="st">"Readers' Favorite "</span>, <span class="st">""</span>, .) </span>
-<span id="cb2-29"><a href=""></a>    </span>
-<span id="cb2-30"><a href=""></a>    <span class="co"># Create a temporary data frame</span></span>
-<span id="cb2-31"><a href=""></a>    temp_books <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">title =</span> titles, <span class="at">img_url =</span> covers, <span class="at">category =</span> category, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-32"><a href=""></a>    </span>
-<span id="cb2-33"><a href=""></a>    <span class="co"># Append to the main data frame</span></span>
-<span id="cb2-34"><a href=""></a>    goodreads <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(goodreads, temp_books)</span>
-<span id="cb2-35"><a href=""></a>}</span>
-<span id="cb2-36"><a href=""></a></span>
-<span id="cb2-37"><a href=""></a><span class="co"># Use general expression to separate title and author</span></span>
-<span id="cb2-38"><a href=""></a>goodreads <span class="ot">&lt;-</span> goodreads <span class="sc">|&gt;</span> </span>
-<span id="cb2-39"><a href=""></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb2-40"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">author =</span> <span class="fu">str_extract</span>(title, <span class="st">"(?&lt;= by ).*"</span>),</span>
-<span id="cb2-41"><a href=""></a>        <span class="at">title =</span> <span class="fu">str_extract</span>(title, <span class="st">".*(?= by )"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section class="slide level2">
-
-<h3 id="extract_colors">extract_colors</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a>extract_colors <span class="ot">&lt;-</span> <span class="cf">function</span>(image_url, <span class="at">n_colors =</span> <span class="dv">6</span>) {</span>
-<span id="cb3-2"><a href=""></a>  </span>
-<span id="cb3-3"><a href=""></a>  <span class="co"># read image from url</span></span>
-<span id="cb3-4"><a href=""></a>  img <span class="ot">&lt;-</span> <span class="fu">image_read</span>(image_url)  <span class="sc">|&gt;</span> </span>
-<span id="cb3-5"><a href=""></a>    <span class="fu">image_resize</span>(<span class="st">"50x50"</span>) <span class="co"># Resize to reduce processing time</span></span>
-<span id="cb3-6"><a href=""></a>  </span>
-<span id="cb3-7"><a href=""></a>  <span class="co"># Convert the image to pixel data</span></span>
-<span id="cb3-8"><a href=""></a>  img_data <span class="ot">&lt;-</span> <span class="fu">image_data</span>(img)</span>
-<span id="cb3-9"><a href=""></a>  </span>
-<span id="cb3-10"><a href=""></a>  <span class="co"># Check if the structure is a bitmap</span></span>
-<span id="cb3-11"><a href=""></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(img_data, <span class="st">"bitmap"</span>)) {</span>
-<span id="cb3-12"><a href=""></a>    <span class="co"># If it is a bitmap, we convert it to a numeric format</span></span>
-<span id="cb3-13"><a href=""></a>    img_data <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(img_data) <span class="sc">/</span> <span class="dv">255</span></span>
-<span id="cb3-14"><a href=""></a>  }</span>
-<span id="cb3-15"><a href=""></a>  </span>
-<span id="cb3-16"><a href=""></a>  <span class="co"># Convert the image to a data frame</span></span>
-<span id="cb3-17"><a href=""></a>  <span class="co"># Extract the RGB channels</span></span>
-<span id="cb3-18"><a href=""></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-19"><a href=""></a>    <span class="at">red =</span> <span class="fu">as.vector</span>(img_data[,,<span class="dv">1</span>]),    <span class="co"># Red</span></span>
-<span id="cb3-20"><a href=""></a>    <span class="at">green =</span> <span class="fu">as.vector</span>(img_data[,,<span class="dv">2</span>]),  <span class="co"># Green</span></span>
-<span id="cb3-21"><a href=""></a>    <span class="at">blue =</span> <span class="fu">as.vector</span>(img_data[,,<span class="dv">3</span>])    <span class="co"># Blue</span></span>
-<span id="cb3-22"><a href=""></a>  )</span>
-<span id="cb3-23"><a href=""></a>  </span>
-<span id="cb3-24"><a href=""></a>  <span class="co"># Apply k-means to find dominant colors</span></span>
-<span id="cb3-25"><a href=""></a>  kmeans_result <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(df, <span class="at">centers =</span> n_colors, <span class="at">nstart =</span> <span class="dv">25</span>, <span class="at">iter.max =</span> <span class="dv">100</span>)</span>
-<span id="cb3-26"><a href=""></a>  </span>
-<span id="cb3-27"><a href=""></a>  <span class="co"># Convert dominant colors to RGB format</span></span>
-<span id="cb3-28"><a href=""></a>  dominant_colors <span class="ot">&lt;-</span> <span class="fu">rgb</span>(kmeans_result<span class="sc">$</span>centers[,<span class="dv">1</span>],</span>
-<span id="cb3-29"><a href=""></a>                         kmeans_result<span class="sc">$</span>centers[,<span class="dv">2</span>],</span>
-<span id="cb3-30"><a href=""></a>                         kmeans_result<span class="sc">$</span>centers[,<span class="dv">3</span>], <span class="at">maxColorValue =</span> <span class="dv">1</span>)</span>
-<span id="cb3-31"><a href=""></a>  </span>
-<span id="cb3-32"><a href=""></a>  <span class="co"># Return colors as a vector of colors </span></span>
-<span id="cb3-33"><a href=""></a>  <span class="fu">return</span>(dominant_colors)</span>
-<span id="cb3-34"><a href=""></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section class="slide level2">
-
-<h3 id="hex_to_rgb">hex_to_rgb</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>hex_to_rgb <span class="ot">&lt;-</span> <span class="cf">function</span>(hex) {</span>
-<span id="cb4-2"><a href=""></a>  rgb_matrix <span class="ot">&lt;-</span> <span class="fu">col2rgb</span>(hex) <span class="sc">/</span> <span class="dv">255</span>  </span>
-<span id="cb4-3"><a href=""></a>  <span class="fu">data.frame</span>(<span class="at">hex =</span> hex, <span class="at">R =</span> rgb_matrix[<span class="dv">1</span>, ], <span class="at">G =</span> rgb_matrix[<span class="dv">2</span>, ], <span class="at">B =</span> rgb_matrix[<span class="dv">3</span>, ])</span>
-<span id="cb4-4"><a href=""></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section class="slide level2">
-
-<h3 id="color-clustering">color clustering</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="co"># k-means clustering to group colors into 6 clusters</span></span>
-<span id="cb5-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">123</span>) </span>
-<span id="cb5-3"><a href=""></a></span>
-<span id="cb5-4"><a href=""></a>color_data_clustered <span class="ot">&lt;-</span> color_data <span class="sc">|&gt;</span> </span>
-<span id="cb5-5"><a href=""></a>  <span class="fu">group_by</span>(category) <span class="sc">|&gt;</span> </span>
-<span id="cb5-6"><a href=""></a>  <span class="fu">group_modify</span>(<span class="sc">~</span> {</span>
-<span id="cb5-7"><a href=""></a>    <span class="cf">if</span> (<span class="fu">nrow</span>(.x) <span class="sc">&lt;</span> <span class="dv">6</span>) {</span>
-<span id="cb5-8"><a href=""></a>      .x<span class="sc">$</span>cluster <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(.x)))  </span>
-<span id="cb5-9"><a href=""></a>    } <span class="cf">else</span> {</span>
-<span id="cb5-10"><a href=""></a>      kmeans_result <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(.x[, <span class="fu">c</span>(<span class="st">"R"</span>, <span class="st">"G"</span>, <span class="st">"B"</span>)], <span class="at">centers =</span> <span class="dv">6</span>)</span>
-<span id="cb5-11"><a href=""></a>      .x<span class="sc">$</span>cluster <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(kmeans_result<span class="sc">$</span>cluster)</span>
-<span id="cb5-12"><a href=""></a>    }</span>
-<span id="cb5-13"><a href=""></a>    <span class="fu">return</span>(.x)</span>
-<span id="cb5-14"><a href=""></a>  }) <span class="sc">|&gt;</span> </span>
-<span id="cb5-15"><a href=""></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb5-16"><a href=""></a></span>
-<span id="cb5-17"><a href=""></a><span class="co"># Map clusters to representative colors </span></span>
-<span id="cb5-18"><a href=""></a>cluster_representative <span class="ot">&lt;-</span> color_data_clustered <span class="sc">|&gt;</span> </span>
-<span id="cb5-19"><a href=""></a>  <span class="fu">group_by</span>(category, cluster) <span class="sc">|&gt;</span> </span>
-<span id="cb5-20"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">representative_color =</span> <span class="fu">first</span>(hex))  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="results" class="slide level2">
-<h2>Results</h2>
+<div id="tabset-1-3">
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6,894 × 6
@@ -680,73 +413,37 @@ Maria Carda &amp; Andrea Rivera
 # ℹ 6,884 more rows</code></pre>
 </div>
 </div>
+</div>
+</div>
+</div>
 </section>
 <section class="slide level2">
 
 <h3 id="analysis">Analysis</h3>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Color representation per category</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Category</a></li><li><a href="#tabset-2-2">Category &amp; web</a></li><li><a href="#tabset-2-3">Top Author</a></li><li><a href="#tabset-2-4">Top 5 authors</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
 <div style="text-align: center;">
 <p><img data-src="images/category.png"></p>
 </div>
-</section>
-<section class="slide level2">
-
-<h3 id="analysis-1">Analysis</h3>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Color representation per category and webpage</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
+</div>
+<div id="tabset-2-2">
 <div style="text-align: center;">
 <p><img data-src="images/category_web.png"></p>
 </div>
-</section>
-<section class="slide level2">
-
-<h3 id="analysis-2">Analysis</h3>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Color representation for top author</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
+</div>
+<div id="tabset-2-3">
 <div style="text-align: center;">
 <p><img data-src="images/topauthor.png"></p>
 </div>
-</section>
-<section class="slide level2">
-
-<h3 id="analysis-3">Analysis</h3>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Color representation for top 5 authors</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
+</div>
+<div id="tabset-2-4">
 <div style="text-align: center;">
 <p><img data-src="images/top5.png"></p>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section class="slide level2">
@@ -756,8 +453,9 @@ Maria Carda &amp; Andrea Rivera
 <iframe src="https://mariacarda.shinyapps.io/data_harvesting_books/" width="10000px" height="500px" style="border: none;">
 </iframe>
 </section>
-<section id="challenges" class="slide level2">
-<h2>Challenges</h2>
+<section class="slide level2">
+
+<h3 id="challenges">Challenges</h3>
 <ul>
 <li><p>Selection of unique name categories in Casa del Libro</p></li>
 <li><p>Same categories in both webpages</p></li>
