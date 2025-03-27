@@ -8,10 +8,6 @@ title-slide-attributes:
 format: 
   revealjs:
     theme: [style.scss_slides]
-    code-overflow: scroll
-    menu:
-      side: left
-      width: normal
     footer: "Master in Computational Social Sciences (UC3M)"
     slide-number: c/t
 ---
